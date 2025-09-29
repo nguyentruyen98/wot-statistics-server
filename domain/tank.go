@@ -8,5 +8,9 @@ type Tank struct {
 }
 type TankUseCase interface {
 	// GetTanks retrieves a list of tanks.
-	GetTanks() (Tank, error)
+	GetTanks() ([]Tank, error)
+}
+
+type TankRepository interface {
+	GetTanks() ([]Tank, error)
 }
