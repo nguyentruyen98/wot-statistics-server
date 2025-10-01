@@ -18,7 +18,7 @@ func (t *TankController) GetTanks(c *gin.Context) {
 	url := "https://api.worldoftanks.asia/wot/encyclopedia/vehicles/?application_id=d5c27b088716f6a2ca4d043e6fe2ba91&tier=1&language=vi&page_no=1&fields=description"
 
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
