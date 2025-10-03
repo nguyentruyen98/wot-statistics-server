@@ -1,19 +1,13 @@
 package route
 
 import (
-	"wot-statistics-server/api/controller"
 	"wot-statistics-server/config"
-	"wot-statistics-server/repository"
-	"wot-statistics-server/usecase"
+	"wot-statistics-server/wire"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewTankRouter(group *gin.RouterGroup) {
-	cfg := config.GetWargamingConfig()
-	tr := repository.NewTankRepository(cfg.AppID)
-	tu := usecase.NewTankUseCase(tr)
-	tc := &controller.TankController{TankUseCase: tu}
-
+func NewTankRouter(group *gin.RouterGroup, appConfig *config.AppConfig) {
+	tc := wire.InitializeTankController(appConfig)
 	group.GET("/tanks", tc.GetTanks)
 }

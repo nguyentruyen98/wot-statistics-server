@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"wot-statistics-server/config"
 	"wot-statistics-server/domain"
 	"wot-statistics-server/external"
 )
@@ -10,13 +11,13 @@ type tankRepository struct {
 	wargamingAPI *external.WargamingAPI
 }
 
-func NewTankRepository(appID string) domain.TankRepository {
+func NewTankRepository(appConfig *config.AppConfig) domain.TankRepository {
 	return &tankRepository{
 		tanks: []domain.Tank{
 			{ID: "1", Name: "Lion", Type: "Medium", Tier: "X"},
 			{ID: "2", Name: "Tiger", Type: "Heavy", Tier: "VIII"},
 		},
-		wargamingAPI: external.NewWargamingAPI(appID),
+		wargamingAPI: external.NewWargamingAPI(appConfig),
 	}
 }
 

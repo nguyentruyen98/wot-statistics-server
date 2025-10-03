@@ -2,8 +2,6 @@ package usecase
 
 import "wot-statistics-server/domain"
 
-// TankUseCase defines the interface for tank-related business logic.
-
 type tankUseCase struct {
 	tankRepository domain.TankRepository
 }

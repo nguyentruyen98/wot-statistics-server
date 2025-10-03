@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"time"
+	"wot-statistics-server/config"
 )
 
 // WargamingAPI represents the Wargaming API client
@@ -31,10 +32,10 @@ type APIError struct {
 }
 
 // NewWargamingAPI creates a new Wargaming API client
-func NewWargamingAPI(appID string) *WargamingAPI {
+func NewWargamingAPI(appConfig *config.AppConfig) *WargamingAPI {
 	return &WargamingAPI{
-		BaseURL: "https://api.worldoftanks.com/wot",
-		AppID:   appID,
+		BaseURL: appConfig.Wargaming.BaseURL,
+		AppID:   appConfig.Wargaming.AppID,
 		HTTPClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
