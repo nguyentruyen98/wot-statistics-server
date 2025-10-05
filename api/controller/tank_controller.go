@@ -45,7 +45,7 @@ func (t *TankController) GetTanks(c *gin.Context) {
 	// }
 
 	// fmt.Printf("%s\n", body)
-	tank, err := t.TankUseCase.GetTanks()
+	tank, err := t.TankUseCase.FetchTanksFromAPI()
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

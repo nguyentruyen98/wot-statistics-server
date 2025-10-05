@@ -24,15 +24,16 @@ func NewTankRepository(appConfig *config.AppConfig) domain.TankRepository {
 func (r *tankRepository) GetTanks() ([]domain.Tank, error) {
 	// For now, return static data
 	// You can extend this to fetch from Wargaming API using r.wargamingAPI
-
+	r.wargamingAPI.GetTanksList(nil)
 	return r.tanks, nil
 }
 
 // GetTanksFromAPI fetches tanks from Wargaming API
 func (r *tankRepository) GetTanksFromAPI() (*external.APIResponse, error) {
 	params := map[string]string{
-		"limit":  "100",
-		"fields": "tank_id,name,type,tier",
+		"language": "en",
+		"fields":   "description",
+		"tier":     "1",
 	}
 	return r.wargamingAPI.GetTanksList(params)
 }

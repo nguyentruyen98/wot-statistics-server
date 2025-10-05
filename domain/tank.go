@@ -1,5 +1,7 @@
 package domain
 
+import "wot-statistics-server/external"
+
 type Tank struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -9,8 +11,10 @@ type Tank struct {
 type TankUseCase interface {
 	// GetTanks retrieves a list of tanks.
 	GetTanks() ([]Tank, error)
+	FetchTanksFromAPI() (*external.APIResponse, error)
 }
 
 type TankRepository interface {
 	GetTanks() ([]Tank, error)
+	GetTanksFromAPI() (*external.APIResponse, error)
 }

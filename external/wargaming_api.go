@@ -42,6 +42,9 @@ func NewWargamingAPI(appConfig *config.AppConfig) *WargamingAPI {
 	}
 }
 
+// "https://api.worldoftanks.asia/wot/encyclopedia/vehicles/?application_id=d5c27b088716f6a2ca4d043e6fe2ba91&language=vi&fields=description&tier=1"
+// "https://api.worldoftanks.asia/wot/encyclopedia/vehicles/?application_id=d5c27b088716f6a2ca4d043e6fe2ba91&fields=description&language=vi&tier=1"
+// "https://api.worldoftanks.asia/wot/encyclopedia/vehicles/?application_id=d5c27b088716f6a2ca4d043e6fe2ba91&limit=100&fields=tank_id,name,type,tier"
 // makeRequest performs an HTTP GET request to the Wargaming API
 func (w *WargamingAPI) makeRequest(endpoint string, params map[string]string) (*APIResponse, error) {
 	// Build URL with parameters
@@ -51,12 +54,23 @@ func (w *WargamingAPI) makeRequest(endpoint string, params map[string]string) (*
 	for key, value := range params {
 		url += fmt.Sprintf("&%s=%s", key, value)
 	}
+	// Create HTTP request
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Add headers
+	req.Header.Set("User-Agent", "WoT-Statistics-Server/1.0")
+	req.Header.Set("Accept", "application/json")
 
 	// Make HTTP request
-	resp, err := w.HTTPClient.Get(url)
-	if err != nil {
-		return nil, fmt.Errorf("failed to make request: %w", err)
-	}
+	resp, err := w.HTTPClient.Do(req)
+	// Make HTTP request
+	// resp, err := w.HTTPClient.Get(url)
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed to make request: %w", err)
+	// }
 	defer resp.Body.Close()
 
 	// Read response body
