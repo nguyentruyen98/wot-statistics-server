@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"os"
 	"wot-statistics-server/domain"
 
 	"github.com/gin-gonic/gin"
@@ -45,11 +47,31 @@ func (t *TankController) GetTanks(c *gin.Context) {
 	// }
 
 	// fmt.Printf("%s\n", body)
-	tank, err := t.TankUseCase.GetTanks()
+	tank, err := t.TankUseCase.GetTanksFromAPI()
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
 
 	c.JSON(200, tank)
+}
+
+// GetUSSRTanks trả về danh sách xe tăng Liên Xô từ file tanks.json
+func (t *TankController) GetUSSRTanks(c *gin.Context) {
+	// Đọc file tanks.json
+	data, err := os.ReadFile("tanks.json")
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Không thể đọc file tanks.json: " + err.Error()})
+		return
+	}
+
+	// Parse JSON
+	var result map[string]interface{}
+	if err := json.Unmarshal(data, &result); err != nil {
+		c.JSON(500, gin.H{"error": "Không thể parse JSON: " + err.Error()})
+		return
+	}
+
+	// Trả về kết quả
+	c.JSON(200, result)
 }

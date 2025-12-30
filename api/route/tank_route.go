@@ -10,4 +10,5 @@ import (
 func NewTankRouter(group *gin.RouterGroup, appConfig *config.AppConfig) {
 	tc := wire.InitializeTankController(appConfig)
 	group.GET("/tanks", tc.GetTanks)
+	group.GET("/tanks/ussr", tc.GetUSSRTanks)
 }

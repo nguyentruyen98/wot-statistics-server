@@ -1,6 +1,7 @@
 package external
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -33,27 +34,40 @@ type APIError struct {
 
 // NewWargamingAPI creates a new Wargaming API client
 func NewWargamingAPI(appConfig *config.AppConfig) *WargamingAPI {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
 	return &WargamingAPI{
 		BaseURL: appConfig.Wargaming.BaseURL,
 		AppID:   appConfig.Wargaming.AppID,
 		HTTPClient: &http.Client{
-			Timeout: 30 * time.Second,
+			Timeout:   30 * time.Second,
+			Transport: tr,
 		},
 	}
 }
 
+// https://api.worldoftanks.asia/wot/encyclopedia/vehicles/?application_id=d5c27b088716f6a2ca4d043e6fe2ba91&language=vi&limit=1&tier=1&fields=description%2C+engines%2C+images.big_icon%2Cimages.contour_icon
 // makeRequest performs an HTTP GET request to the Wargaming API
 func (w *WargamingAPI) makeRequest(endpoint string, params map[string]string) (*APIResponse, error) {
 	// Build URL with parameters
-	url := fmt.Sprintf("%s%s?application_id=%s", w.BaseURL, endpoint, w.AppID)
+	url := fmt.Sprintf("%s%s?application_id=%s&language=vi&limit=1&tier=1", w.BaseURL, endpoint, w.AppID)
 
 	// Add additional parameters
-	for key, value := range params {
-		url += fmt.Sprintf("&%s=%s", key, value)
-	}
+	// for key, value := range params {
+	// 	url += fmt.Sprintf("&%s=%s", key, value)
+	// }
 
 	// Make HTTP request
-	resp, err := w.HTTPClient.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Add headers
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; Go-http-client)")
+
+	resp, err := w.HTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
