@@ -1,9 +1,19 @@
 package config
 
+import "time"
+
 type WargamingConfig struct {
 	AppID   string
 	BaseURL string
 	Region  string
+}
+
+type DatabaseConfig struct {
+	URL             string
+	MaxOpenConns    int
+	MaxIdleConns    int
+	ConnMaxLifetime time.Duration
+	ConnMaxIdleTime time.Duration
 }
 
 type AppConfig struct {
