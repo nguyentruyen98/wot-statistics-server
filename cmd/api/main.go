@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"time"
 	"wot-statistics-server/api/route"
 	"wot-statistics-server/config"
@@ -24,7 +25,8 @@ func main() {
 		MaxAge:           12 * time.Hour,
 	}))
 
-	_, err := postgres.NewDB(&config.DatabaseConfig{
+	// Connect to database
+	db, err := postgres.NewDB(&config.DatabaseConfig{
 		URL:             "postgres://postgres:postgres@localhost:5432/wot-statistics?sslmode=disable",
 		MaxOpenConns:    25,
 		MaxIdleConns:    25,
@@ -33,13 +35,27 @@ func main() {
 	})
 
 	if err != nil {
-		fmt.Println("Error connecting to database:", err)
+		log.Fatalf("Error connecting to database: %v", err)
 	}
+	defer db.Close()
 
+	fmt.Println("✅ Database connected successfully")
+
+	// Get app config
 	appConfig := config.GetAppConfig()
 
-	route.SetupRouter(router, appConfig)
+	// Setup routes
+	route.SetupRouter(router, db, appConfig)
 
-	router.Run()
+	// Health check endpoint
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "healthy",
+			"message": "WoT Statistics Server is running",
+		})
+	})
 
+	// Start server
+	fmt.Println("🚀 Server starting on :8080")
+	router.Run(":8080")
 }

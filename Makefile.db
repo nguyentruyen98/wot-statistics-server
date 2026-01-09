@@ -1,0 +1,66 @@
+# Database Migration Makefile
+# Include this in your main Makefile or run directly
+
+DB_HOST ?= localhost
+DB_PORT ?= 5432
+DB_USER ?= postgres
+DB_PASSWORD ?= postgres
+DB_NAME ?= wot-statistics
+DB_URL = postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=disable
+
+.PHONY: db-create db-drop db-migrate-up db-migrate-down db-migrate-force db-migrate-version db-psql db-seed
+
+# Create database
+db-create:
+	@echo "Creating database $(DB_NAME)..."
+	docker exec -it wot-statistics-postgres psql -U $(DB_USER) -c "CREATE DATABASE $(DB_NAME);"
+
+# Drop database
+db-drop:
+	@echo "Dropping database $(DB_NAME)..."
+	docker exec -it wot-statistics-postgres psql -U $(DB_USER) -c "DROP DATABASE IF EXISTS $(DB_NAME);"
+
+# Run migrations up
+db-migrate-up:
+	@echo "Running migrations..."
+	docker exec -i wot-statistics-postgres psql -U $(DB_USER) -d $(DB_NAME) < migrations/001_create_tanks_table.up.sql
+	@echo "Migrations completed!"
+
+# Run migrations down
+db-migrate-down:
+	@echo "Rolling back migrations..."
+	docker exec -i wot-statistics-postgres psql -U $(DB_USER) -d $(DB_NAME) < migrations/001_create_tanks_table.down.sql
+	@echo "Rollback completed!"
+
+# Reset database (drop, create, migrate)
+db-reset: db-drop db-create db-migrate-up
+	@echo "Database reset completed!"
+
+# Open psql shell
+db-psql:
+	docker exec -it wot-statistics-postgres psql -U $(DB_USER) -d $(DB_NAME)
+
+# Show migration version (requires golang-migrate)
+db-migrate-version:
+	migrate -path migrations -database "$(DB_URL)" version
+
+# Force migration version (if stuck)
+db-migrate-force:
+	@echo "Force migration to version $(VERSION)..."
+	migrate -path migrations -database "$(DB_URL)" force $(VERSION)
+
+# Seed database with tanks data
+db-seed:
+	@echo "Seeding database with tanks data..."
+	@echo "Run: go run cmd/seed/main.go"
+
+# Help
+db-help:
+	@echo "Database Migration Commands:"
+	@echo "  make db-create        - Create database"
+	@echo "  make db-drop          - Drop database"
+	@echo "  make db-migrate-up    - Run migrations"
+	@echo "  make db-migrate-down  - Rollback migrations"
+	@echo "  make db-reset         - Drop, create, and migrate database"
+	@echo "  make db-psql          - Open psql shell"
+	@echo "  make db-seed          - Seed database with data"

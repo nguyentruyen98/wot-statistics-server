@@ -10,19 +10,21 @@ import (
 	"github.com/google/wire"
 	"wot-statistics-server/api/controller"
 	"wot-statistics-server/config"
+	"wot-statistics-server/internal/infrastructure/postgres"
 	"wot-statistics-server/repository"
 	"wot-statistics-server/usecase"
 )
 
 // Injectors from tank_module.go:
 
-func InitializeTankController(appConfig *config.AppConfig) *controller.TankController {
-	tankRepository := repository.NewTankRepository(appConfig)
-	tankUseCase := usecase.NewTankUseCase(tankRepository)
+func InitializeTankController(db *postgres.DB, appConfig *config.AppConfig) *controller.TankController {
+	tankRepository := repository.NewTankRepository(db, appConfig)
+	profileRepository := repository.NewProfileRepository(db)
+	tankUseCase := usecase.NewTankUseCase(tankRepository, profileRepository)
 	tankController := controller.NewTankController(tankUseCase)
 	return tankController
 }
 
 // tank_module.go:
 
-var TankSet = wire.NewSet(repository.NewTankRepository, usecase.NewTankUseCase, controller.NewTankController)
+var TankSet = wire.NewSet(repository.NewTankRepository, repository.NewProfileRepository, usecase.NewTankUseCase, controller.NewTankController)
